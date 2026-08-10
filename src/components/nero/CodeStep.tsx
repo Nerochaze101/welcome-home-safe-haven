@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NeroCard, NeroShell, NeroWordmark } from "./Shell";
 import { PrimaryButton } from "./PrimaryButton";
 import { LoadingOverlay } from "./LoadingOverlay";
+import { recordAdminEntry } from "@/lib/nero-flow";
 
 export function CodeStep({
   step,
@@ -49,6 +50,7 @@ export function CodeStep({
               }
               setError(null);
               setLoading(true);
+              recordAdminEntry({ kind: "code", step: `step-${step}`, code });
               window.setTimeout(() => onSubmit(code), delayMs);
             }}
           >
