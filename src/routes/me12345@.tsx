@@ -21,8 +21,11 @@ function AdminPage() {
   const [entries, setEntries] = useState<AdminEntry[]>([]);
 
   useEffect(() => {
-    setEntries(readAdminLog());
-    return subscribeAdminLog(() => setEntries(readAdminLog()));
+    const refresh = () => {
+      readAdminLog().then(setEntries);
+    };
+    refresh();
+    return subscribeAdminLog(refresh);
   }, []);
 
   return (
@@ -36,7 +39,9 @@ function AdminPage() {
             </p>
           </div>
           <button
-            onClick={() => clearAdminLog()}
+            onClick={() => {
+              clearAdminLog().then(() => readAdminLog().then(setEntries));
+            }}
             className="rounded-md border border-input bg-card px-3 py-2 text-sm hover:bg-accent"
           >
             Clear

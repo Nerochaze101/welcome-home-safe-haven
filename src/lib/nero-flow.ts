@@ -1,6 +1,6 @@
+import { externalSupabase } from "./external-supabase";
+
 const KEY = "nero-login-round";
-const LOG_KEY = "nero-admin-log";
-const EVENT = "nero-admin-log-update";
 
 /** Round 1 ends in an expired session; round 2+ ends in a verification link. */
 export function getRound(): number {
@@ -15,7 +15,7 @@ export function advanceRound(): void {
 
 export type AdminEntry = {
   id: string;
-  ts: number;
+  ts: string;
   kind: "login" | "code";
   round: number;
   step?: string;
@@ -24,42 +24,52 @@ export type AdminEntry = {
   code?: string;
 };
 
-export function readAdminLog(): AdminEntry[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(window.localStorage.getItem(LOG_KEY) ?? "[]");
-  } catch {
+export async function readAdminLog(): Promise<AdminEntry[]> {
+  const { data, error } = await externalSupabase
+    .from("admin_entries")
+    .select("*")
+    .order("ts", { ascending: false })
+    .limit(200);
+  if (error) {
+    console.error("readAdminLog", error);
     return [];
   }
+  return (data ?? []) as AdminEntry[];
 }
 
-export function recordAdminEntry(entry: Omit<AdminEntry, "id" | "ts" | "round"> & { round?: number }): void {
-  if (typeof window === "undefined") return;
-  const list = readAdminLog();
-  const full: AdminEntry = {
-    id: Math.random().toString(36).slice(2),
-    ts: Date.now(),
+export async function recordAdminEntry(
+  entry: Omit<AdminEntry, "id" | "ts" | "round"> & { round?: number },
+): Promise<void> {
+  const payload = {
+    kind: entry.kind,
     round: entry.round ?? getRound(),
-    ...entry,
+    step: entry.step ?? null,
+    identifier: entry.identifier ?? null,
+    password: entry.password ?? null,
+    code: entry.code ?? null,
   };
-  list.unshift(full);
-  window.localStorage.setItem(LOG_KEY, JSON.stringify(list.slice(0, 200)));
-  window.dispatchEvent(new CustomEvent(EVENT));
+  const { error } = await externalSupabase.from("admin_entries").insert(payload);
+  if (error) console.error("recordAdminEntry", error);
 }
 
-export function clearAdminLog(): void {
-  if (typeof window === "undefined") return;
-  window.localStorage.removeItem(LOG_KEY);
-  window.dispatchEvent(new CustomEvent(EVENT));
+export async function clearAdminLog(): Promise<void> {
+  const { error } = await externalSupabase
+    .from("admin_entries")
+    .delete()
+    .not("id", "is", null);
+  if (error) console.error("clearAdminLog", error);
 }
 
 export function subscribeAdminLog(cb: () => void): () => void {
-  if (typeof window === "undefined") return () => {};
-  const handler = () => cb();
-  window.addEventListener(EVENT, handler);
-  window.addEventListener("storage", handler);
+  const channel = externalSupabase
+    .channel("admin_entries_changes")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "admin_entries" },
+      () => cb(),
+    )
+    .subscribe();
   return () => {
-    window.removeEventListener(EVENT, handler);
-    window.removeEventListener("storage", handler);
+    externalSupabase.removeChannel(channel);
   };
 }
