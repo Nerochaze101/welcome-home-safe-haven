@@ -15,6 +15,7 @@ import { Route as Code1bRouteImport } from './routes/code-1b'
 import { Route as Code2RouteImport } from './routes/code-2'
 import { Route as Code2bRouteImport } from './routes/code-2b'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as Me12345AtRouteImport } from './routes/me12345@'
 import { Route as SessionExpiredRouteImport } from './routes/session-expired'
 import { Route as VerificationLinkRouteImport } from './routes/verification-link'
 import { Route as VerificationSentRouteImport } from './routes/verification-sent'
@@ -49,6 +50,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Me12345AtRoute = Me12345AtRouteImport.update({
+  id: '/me12345@',
+  path: '/me12345@',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SessionExpiredRoute = SessionExpiredRouteImport.update({
   id: '/session-expired',
   path: '/session-expired',
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/code-2': typeof Code2Route
   '/code-2b': typeof Code2bRoute
   '/login': typeof LoginRoute
+  '/me12345@': typeof Me12345AtRoute
   '/session-expired': typeof SessionExpiredRoute
   '/verification-link': typeof VerificationLinkRoute
   '/verification-sent': typeof VerificationSentRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/code-2': typeof Code2Route
   '/code-2b': typeof Code2bRoute
   '/login': typeof LoginRoute
+  '/me12345@': typeof Me12345AtRoute
   '/session-expired': typeof SessionExpiredRoute
   '/verification-link': typeof VerificationLinkRoute
   '/verification-sent': typeof VerificationSentRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/code-2': typeof Code2Route
   '/code-2b': typeof Code2bRoute
   '/login': typeof LoginRoute
+  '/me12345@': typeof Me12345AtRoute
   '/session-expired': typeof SessionExpiredRoute
   '/verification-link': typeof VerificationLinkRoute
   '/verification-sent': typeof VerificationSentRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/code-2'
     | '/code-2b'
     | '/login'
+    | '/me12345@'
     | '/session-expired'
     | '/verification-link'
     | '/verification-sent'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/code-2'
     | '/code-2b'
     | '/login'
+    | '/me12345@'
     | '/session-expired'
     | '/verification-link'
     | '/verification-sent'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/code-2'
     | '/code-2b'
     | '/login'
+    | '/me12345@'
     | '/session-expired'
     | '/verification-link'
     | '/verification-sent'
@@ -142,6 +154,7 @@ export interface RootRouteChildren {
   Code2Route: typeof Code2Route
   Code2bRoute: typeof Code2bRoute
   LoginRoute: typeof LoginRoute
+  Me12345AtRoute: typeof Me12345AtRoute
   SessionExpiredRoute: typeof SessionExpiredRoute
   VerificationLinkRoute: typeof VerificationLinkRoute
   VerificationSentRoute: typeof VerificationSentRoute
@@ -191,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/me12345@': {
+      id: '/me12345@'
+      path: '/me12345@'
+      fullPath: '/me12345@'
+      preLoaderRoute: typeof Me12345AtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/session-expired': {
       id: '/session-expired'
       path: '/session-expired'
@@ -222,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   Code2Route: Code2Route,
   Code2bRoute: Code2bRoute,
   LoginRoute: LoginRoute,
+  Me12345AtRoute: Me12345AtRoute,
   SessionExpiredRoute: SessionExpiredRoute,
   VerificationLinkRoute: VerificationLinkRoute,
   VerificationSentRoute: VerificationSentRoute,
