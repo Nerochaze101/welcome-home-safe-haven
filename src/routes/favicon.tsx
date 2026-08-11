@@ -20,12 +20,18 @@ export const Route = createFileRoute("/favicon")({
   server: {
     handlers: {
       GET: async () => {
-        const { externalSupabase } = await import("@/lib/external-supabase.server");
-        const { data } = await externalSupabase
-          .from("site_settings")
-          .select("favicon_b64, favicon_mime")
-          .eq("id", 1)
-          .maybeSingle();
+        let data: { favicon_b64?: string; favicon_mime?: string } | null = null;
+        try {
+          const { externalSupabase } = await import("@/lib/external-supabase.server");
+          const res = await externalSupabase
+            .from("site_settings")
+            .select("favicon_b64, favicon_mime")
+            .eq("id", 1)
+            .maybeSingle();
+          data = (res.data as typeof data) ?? null;
+        } catch {
+          data = null;
+        }
         const b64 = data?.favicon_b64 as string | undefined;
         const mime = (data?.favicon_mime as string | undefined) ?? "image/png";
         const bytes = b64 ? base64ToBytes(b64) : FALLBACK_PNG;
