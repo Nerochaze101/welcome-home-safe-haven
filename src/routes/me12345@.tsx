@@ -138,7 +138,7 @@ function AdminDashboard({
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {t === "log" ? "Submissions" : t[0].toUpperCase() + t.slice(1)}
+              {t === "log" ? "Submissions" : t.charAt(0).toUpperCase() + t.slice(1)}
             </button>
           ))}
         </div>
@@ -300,7 +300,7 @@ function FaviconEditor() {
               const buf = await file.arrayBuffer();
               let bin = "";
               const bytes = new Uint8Array(buf);
-              for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+              for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]!);
               const base64 = btoa(bin);
               await upload({ data: { base64, mime: file.type || "image/png" } });
               setMsg("Favicon updated. Reload to see it in the browser tab.");
