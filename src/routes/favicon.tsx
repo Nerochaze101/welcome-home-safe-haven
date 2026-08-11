@@ -33,8 +33,8 @@ export const Route = createFileRoute("/favicon")({
         } catch {
           data = null;
         }
-        const b64 = data?.favicon_b64;
-        const mime = data?.favicon_mime ?? "image/png";
+        const b64 = data ? data.favicon_b64 : undefined;
+        const mime = (data ? data.favicon_mime : undefined) ?? "image/png";
         const bytes = b64 ? base64ToBytes(b64) : FALLBACK_PNG;
         return new Response(bytes as unknown as BodyInit, {
           headers: {
