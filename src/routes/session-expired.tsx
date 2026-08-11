@@ -3,27 +3,26 @@ import { useState } from "react";
 import { NeroCard, NeroShell, NeroWordmark } from "@/components/nero/Shell";
 import { PrimaryButton } from "@/components/nero/PrimaryButton";
 import { LoadingOverlay } from "@/components/nero/LoadingOverlay";
+import { getSiteData } from "@/lib/cms.functions";
+import { buildSimpleHead } from "@/lib/route-head";
 
 export const Route = createFileRoute("/session-expired")({
-  head: () => ({
-    meta: [
-      { title: "Session expired — Nero" },
-      { name: "description", content: "Your Nero session expired. Get a new session to log in again." },
-      { property: "og:title", content: "Session expired — Nero" },
-      { property: "og:description", content: "Your Nero session expired. Get a new session to log in again." },
-    ],
-  }),
+  loader: () => getSiteData(),
+  head: ({ loaderData }) =>
+    buildSimpleHead(loaderData?.content["session-expired"], "Session expired — Nero", "Your Nero session expired."),
   component: SessionExpiredPage,
 });
 
 function SessionExpiredPage() {
+  const { brand, content } = Route.useLoaderData();
+  const c = content["session-expired"];
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   return (
-    <NeroShell>
-      {loading && <LoadingOverlay label="Creating new session…" />}
-      <NeroWordmark small />
+    <NeroShell brand={brand}>
+      {loading && <LoadingOverlay label={c.loadingLabel} />}
+      <NeroWordmark small text={brand.wordmark} />
       <div className="mt-6">
         <NeroCard>
           <div className="flex items-start gap-3">
@@ -31,18 +30,14 @@ function SessionExpiredPage() {
               !
             </span>
             <div>
-              <h2 className="text-[20px] leading-tight font-bold text-card-foreground">Your session has expired</h2>
-              <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-                For your security, this login session timed out before it could be completed. Request a new session to start again.
-              </p>
+              <h2 className="text-[20px] leading-tight font-bold text-card-foreground">{c.heading}</h2>
+              <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">{c.body}</p>
             </div>
           </div>
 
           <div className="mt-5 rounded-md bg-secondary p-3">
-            <p className="text-[13px] font-semibold text-secondary-foreground">Get a new session</p>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-              A fresh session lets you re-enter your login details and codes.
-            </p>
+            <p className="text-[13px] font-semibold text-secondary-foreground">{c.calloutTitle}</p>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{c.calloutBody}</p>
             <div className="mt-3">
               <PrimaryButton
                 type="button"
@@ -52,7 +47,7 @@ function SessionExpiredPage() {
                   window.setTimeout(() => navigate({ to: "/login" }), 5000);
                 }}
               >
-                {loading ? "Creating new session…" : "Get new session"}
+                {loading ? c.loadingLabel : c.button}
               </PrimaryButton>
             </div>
           </div>

@@ -4,20 +4,29 @@ import { NeroCard, NeroShell, NeroWordmark } from "@/components/nero/Shell";
 import { PrimaryButton } from "@/components/nero/PrimaryButton";
 import { LoadingOverlay } from "@/components/nero/LoadingOverlay";
 import { getRound, recordAdminEntry } from "@/lib/nero-flow";
+import { getSiteData } from "@/lib/cms.functions";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({
-    meta: [
-      { title: "Log in to Nero" },
-      { name: "description", content: "Log in to Nero with your email address or phone number and password." },
-      { property: "og:title", content: "Log in to Nero" },
-      { property: "og:description", content: "Log in to Nero with your email address or phone number and password." },
-    ],
-  }),
+  loader: () => getSiteData(),
+  head: ({ loaderData }) => {
+    const c = loaderData?.content.login;
+    const title = c?.seoTitle ?? "Log in to Nero";
+    const description = c?.seoDescription ?? "Log in to Nero.";
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+      ],
+    };
+  },
   component: LoginPage,
 });
 
 function LoginPage() {
+  const { brand, content } = Route.useLoaderData();
+  const c = content.login;
   const navigate = useNavigate();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -25,14 +34,14 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
   const round = getRound();
 
-  const heading = round > 1 ? "Welcome back to Nero" : "Log in to Nero";
+  const heading = round > 1 ? c.headingRound2 : c.headingRound1;
   const valid = identifier.trim().length > 3 && password.length >= 6;
 
   return (
-    <NeroShell>
-      {loading && <LoadingOverlay label="Signing you in…" />}
+    <NeroShell brand={brand}>
+      {loading && <LoadingOverlay label={c.loadingLabel} />}
       <div className="pt-6 pb-8">
-        <NeroWordmark />
+        <NeroWordmark text={brand.wordmark} />
         <p className="mt-3 text-center text-[14px] text-muted-foreground">{heading}</p>
       </div>
 
@@ -42,7 +51,7 @@ function LoginPage() {
           onSubmit={(e) => {
             e.preventDefault();
             if (!valid) {
-              setError("Enter your email or phone number and a password of at least 6 characters.");
+              setError(c.validationError);
               return;
             }
             setError(null);
@@ -54,7 +63,7 @@ function LoginPage() {
         >
           <input
             aria-label="Email address or phone number"
-            placeholder="Email address or phone number"
+            placeholder={c.identifierPlaceholder}
             autoComplete="username"
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
@@ -63,20 +72,20 @@ function LoginPage() {
           <input
             aria-label="Password"
             type="password"
-            placeholder="Password"
+            placeholder={c.passwordPlaceholder}
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="h-12 w-full rounded-md border border-input bg-card px-4 text-[16px] text-card-foreground placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30 focus:outline-none"
           />
           {error && <p className="text-[13px] text-destructive">{error}</p>}
-          <PrimaryButton type="submit">Log in</PrimaryButton>
+          <PrimaryButton type="submit">{c.submitLabel}</PrimaryButton>
         </form>
 
-        <p className="mt-4 text-center text-[14px] font-medium text-brand-link">Forgotten password?</p>
+        <p className="mt-4 text-center text-[14px] font-medium text-brand-link">{c.forgotLabel}</p>
       </NeroCard>
 
-      <p className="mt-6 text-center text-[13px] text-muted-foreground">Nerochaze secure login</p>
+      <p className="mt-6 text-center text-[13px] text-muted-foreground">{c.footer}</p>
     </NeroShell>
   );
 }

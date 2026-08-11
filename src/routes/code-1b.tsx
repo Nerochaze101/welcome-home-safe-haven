@@ -1,25 +1,22 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CodeStep } from "@/components/nero/CodeStep";
+import { getSiteData } from "@/lib/cms.functions";
+import { buildCodeStepHead } from "@/lib/route-head";
 
 export const Route = createFileRoute("/code-1b")({
-  head: () => ({
-    meta: [
-      { title: "Verify your identity — Nero" },
-      { name: "description", content: "Enter the fresh 6 or 8 digit code sent to your registered contact to verify your Nero identity." },
-      { property: "og:title", content: "Verify your identity — Nero" },
-      { property: "og:description", content: "Enter the fresh 6 or 8 digit code sent to your registered contact to verify your Nero identity." },
-    ],
-  }),
+  loader: () => getSiteData(),
+  head: ({ loaderData }) => buildCodeStepHead(loaderData?.content["code-1b"]),
   component: CodeOneBPage,
 });
 
 function CodeOneBPage() {
+  const { brand, content } = Route.useLoaderData();
   const navigate = useNavigate();
   return (
     <CodeStep
       step={1}
-      title="Verify your identity"
-      description="For extra security we've sent a fresh 6 or 8 digit code to your registered contact. Enter it to continue."
+      brand={brand}
+      content={content["code-1b"]}
       onSubmit={() => navigate({ to: "/code-2b" })}
     />
   );
