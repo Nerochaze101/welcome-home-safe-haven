@@ -34,7 +34,7 @@ function VerificationSentPage() {
             <Link to="/verification-link">{c.resendLabel}</Link>
           </p>
           <p className="mt-2 text-center text-[13px] text-muted-foreground">
-            <Link to="/login">{c.backLabel}</Link>
+            <Link to="/new">{c.backLabel}</Link>
           </p>
         </NeroCard>
       </div>
