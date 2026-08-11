@@ -29,7 +29,7 @@ export const Route = createFileRoute("/favicon")({
         const b64 = data?.favicon_b64 as string | undefined;
         const mime = (data?.favicon_mime as string | undefined) ?? "image/png";
         const bytes = b64 ? base64ToBytes(b64) : FALLBACK_PNG;
-        return new Response(bytes, {
+        return new Response(bytes as unknown as BodyInit, {
           headers: {
             "content-type": mime,
             "cache-control": "public, max-age=300",
