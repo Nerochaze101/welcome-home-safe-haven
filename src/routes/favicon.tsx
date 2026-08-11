@@ -20,7 +20,8 @@ export const Route = createFileRoute("/favicon")({
   server: {
     handlers: {
       GET: async () => {
-        let data: { favicon_b64?: string; favicon_mime?: string } | null = null;
+        type Row = { favicon_b64?: string; favicon_mime?: string };
+        let data: Row | null = null;
         try {
           const { externalSupabase } = await import("@/lib/external-supabase.server");
           const res = await externalSupabase
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/favicon")({
             .select("favicon_b64, favicon_mime")
             .eq("id", 1)
             .maybeSingle();
-          data = (res.data as typeof data) ?? null;
+          data = (res.data as Row | null) ?? null;
         } catch {
           data = null;
         }
