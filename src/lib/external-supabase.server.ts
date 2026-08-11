@@ -1,3 +1,6 @@
+// Server-only Supabase client for the external CMS database. The .server.ts
+// filename blocks any client-side import; do NOT import from a browser
+// context — go through cms.functions.ts instead.
 import { createClient } from "@supabase/supabase-js";
 
 const url = "https://wfprjxhdftoiyrnvhzuv.supabase.co";

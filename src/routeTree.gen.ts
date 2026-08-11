@@ -14,6 +14,7 @@ import { Route as Code1RouteImport } from './routes/code-1'
 import { Route as Code1bRouteImport } from './routes/code-1b'
 import { Route as Code2RouteImport } from './routes/code-2'
 import { Route as Code2bRouteImport } from './routes/code-2b'
+import { Route as FaviconRouteImport } from './routes/favicon'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as Me12345AtRouteImport } from './routes/me12345@'
 import { Route as SessionExpiredRouteImport } from './routes/session-expired'
@@ -43,6 +44,11 @@ const Code2Route = Code2RouteImport.update({
 const Code2bRoute = Code2bRouteImport.update({
   id: '/code-2b',
   path: '/code-2b',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaviconRoute = FaviconRouteImport.update({
+  id: '/favicon',
+  path: '/favicon',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/code-1b': typeof Code1bRoute
   '/code-2': typeof Code2Route
   '/code-2b': typeof Code2bRoute
+  '/favicon': typeof FaviconRoute
   '/login': typeof LoginRoute
   '/me12345@': typeof Me12345AtRoute
   '/session-expired': typeof SessionExpiredRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/code-1b': typeof Code1bRoute
   '/code-2': typeof Code2Route
   '/code-2b': typeof Code2bRoute
+  '/favicon': typeof FaviconRoute
   '/login': typeof LoginRoute
   '/me12345@': typeof Me12345AtRoute
   '/session-expired': typeof SessionExpiredRoute
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/code-1b': typeof Code1bRoute
   '/code-2': typeof Code2Route
   '/code-2b': typeof Code2bRoute
+  '/favicon': typeof FaviconRoute
   '/login': typeof LoginRoute
   '/me12345@': typeof Me12345AtRoute
   '/session-expired': typeof SessionExpiredRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/code-1b'
     | '/code-2'
     | '/code-2b'
+    | '/favicon'
     | '/login'
     | '/me12345@'
     | '/session-expired'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/code-1b'
     | '/code-2'
     | '/code-2b'
+    | '/favicon'
     | '/login'
     | '/me12345@'
     | '/session-expired'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/code-1b'
     | '/code-2'
     | '/code-2b'
+    | '/favicon'
     | '/login'
     | '/me12345@'
     | '/session-expired'
@@ -153,6 +165,7 @@ export interface RootRouteChildren {
   Code1bRoute: typeof Code1bRoute
   Code2Route: typeof Code2Route
   Code2bRoute: typeof Code2bRoute
+  FaviconRoute: typeof FaviconRoute
   LoginRoute: typeof LoginRoute
   Me12345AtRoute: typeof Me12345AtRoute
   SessionExpiredRoute: typeof SessionExpiredRoute
@@ -195,6 +208,13 @@ declare module '@tanstack/react-router' {
       path: '/code-2b'
       fullPath: '/code-2b'
       preLoaderRoute: typeof Code2bRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/favicon': {
+      id: '/favicon'
+      path: '/favicon'
+      fullPath: '/favicon'
+      preLoaderRoute: typeof FaviconRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -241,6 +261,7 @@ const rootRouteChildren: RootRouteChildren = {
   Code1bRoute: Code1bRoute,
   Code2Route: Code2Route,
   Code2bRoute: Code2bRoute,
+  FaviconRoute: FaviconRoute,
   LoginRoute: LoginRoute,
   Me12345AtRoute: Me12345AtRoute,
   SessionExpiredRoute: SessionExpiredRoute,
@@ -250,13 +271,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

